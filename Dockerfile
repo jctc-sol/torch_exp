@@ -10,6 +10,7 @@ RUN jupyter notebook --generate-config --allow-root
 # # copy over scripts & requirements
 COPY ./start.sh /
 COPY ./requirements.txt /
+COPY ./notebook.py / 
 
 RUN apt-get update && apt-get install
 RUN pip -q install -r /requirements.txt

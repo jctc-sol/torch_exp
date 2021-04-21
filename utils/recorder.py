@@ -6,9 +6,9 @@ class Recorder(object):
     Keeps running record on max/min/avg/sum and cnt
     """
     fields = ['sum', 'cnt', 'min', 'max', 'avg']
-    def __init__(self, name=None):
+    def __init__(self, name=''):
         self.reset()
-        self.name = name
+        self.name = camel2snake(name + 'Recorder')
         
     def reset(self):
         for f in self.fields: setattr(self, f, 0)
@@ -28,4 +28,6 @@ class Recorder(object):
         self.update(val, n)
             
     def __repr__(self):
-        return camel2snake(f'{self.name}Tracker')
+        return self.name
+
+

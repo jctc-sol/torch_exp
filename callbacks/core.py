@@ -6,16 +6,9 @@ class Callback():
     """
     Base template for all other callback functions to inhereit from.
     """
-    _order=0 # used to sort order of callback to execute, 0 being the base layer parent Callback class
-    _cb_names = ['before_train',
-                 'before_epoch',
-                 'before_batch',
-                 'after_batch',
-                 'after_epoch',
-                 'begin_eval',
-                 'after_eval',
-                 'after_train'
-                 ]
+    # _order filed will be used to sort order of callback to execute;
+    # 0 being the base layer parent Callback class
+    _order=0
 
     def set_exp(self, exp): 
         self.exp=exp
@@ -28,8 +21,10 @@ class Callback():
         name = re.sub(r'Callback$', '', self.__class__.__name__)
         return camel2snake(name or 'callback')
     
-    def __call__(self, cb_name):  # check if the callback specified by cb_name exists
-        assert cb_name in self._cb_names, f'invalid callback name: {cb_name}'
+    def __call__(self, cb_name):  # check if the callback specified by cb_name exists        
         f = getattr(self, cb_name, None)
-        if f and f(): return True
+        # below condition set to not f() to avoid writing "return True" in every callback function
+        if f and not f(): return True
         return False
+
+

@@ -127,3 +127,18 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# trash
+.Trash*
+
+# don't commit notebooks
+*.ipynb
+
+# coco related files
+coco
+coco_utils.py
+dataset.py
+loss.py
+metric.py
+model.py
+
