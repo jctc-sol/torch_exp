@@ -73,11 +73,11 @@ class Exp():
                 self.loss = self.loss_func(self.pred, self.yb) # default loss compute pattern
             self('after_loss')
             if not self.in_train: return # stop here if in eval mode as you don't need to backprop & update
-            self.loss.backward()
-            self('after_backward')
-            self.opt.step()
-            self('after_step')
             self.opt.zero_grad()
+            self.loss.backward() # back propagation
+            self('after_backward')
+            self.opt.step() # update params
+            self('after_step')
         # call after_cancel_batch callback if CancelBatchException occurs
         except CancelBatchException: 
             self('after_cancel_batch')  
