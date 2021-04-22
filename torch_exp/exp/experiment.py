@@ -1,6 +1,6 @@
 import torch
-from utils.core import listify
-from callbacks  import *
+from torch_exp.utils.core import listify
+from torch_exp.callbacks import *
 
 
 class Exp():

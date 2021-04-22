@@ -1,4 +1,4 @@
-from callbacks.core import Callback
+from torch_exp.callbacks.core import Callback
 
 
 class GradientClipCallback(Callback):

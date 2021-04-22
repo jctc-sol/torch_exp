@@ -1,5 +1,5 @@
 import re, uuid
-from utils import *
+from torch_exp.utils import *
 
 
 class Callback():

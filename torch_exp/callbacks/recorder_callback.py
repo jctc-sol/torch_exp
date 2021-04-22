@@ -1,6 +1,6 @@
 import time
-from callbacks.core import Callback
-from utils import *
+from torch_exp.callbacks.core import Callback
+from torch_exp.utils import *
 
 
 class RecorderCallback(Callback):

@@ -1,4 +1,4 @@
-from utils.core import camel2snake
+from torch_exp.utils.core import camel2snake
 
 
 class Recorder(object):
