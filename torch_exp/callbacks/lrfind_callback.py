@@ -44,7 +44,6 @@ class LrFindCallback(Callback):
         self.find_differential_lr()
         # set all LR for all param groups at start value
         self.set_lr(self.lr_start)
-        print('here1')
         
         
     def after_loss(self):

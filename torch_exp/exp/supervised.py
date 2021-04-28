@@ -7,7 +7,7 @@ from torch_exp.callbacks import *
 class SupervisedExp(Exp):
     
     def __init__(self, learner, cbs=None, cb_funcs=None, device=None, name=None, desc=None,
-                 display_every_n_batch=1, eval_every_n_epoch=1, save_every_n_epoch=1,
+                 display_every_n_batch=25, eval_every_n_epoch=1, save_every_n_epoch=1,
                  save_dir='runs'):        
         # default callbacks for supervise experiments
         default_cbs = [SetupCallback(display_every_n_batch, eval_every_n_epoch, save_every_n_epoch, save_dir), 
