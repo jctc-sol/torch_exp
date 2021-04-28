@@ -1,71 +1,26 @@
 import torch
 from torch_exp.utils.core import listify
+from torch_exp.exp.core import Exp
 from torch_exp.callbacks import *
 
 
-class Exp():
+class SupervisedExp(Exp):
     
-    def __init__(self, learner, cbs=None, cb_funcs=None, device=None, name=None, desc=None):
-        self.learner = learner
-        default_cbs = [SetupCallback(), RecorderCallback()]
-        cbs = default_cbs + listify(cbs)
-        for cbf in listify(cb_funcs):
-            # instantiate each callback function
-            cb = cbf()
-            cbs.append(cb)
-        for cb in cbs:
-            # add callback name to current Exp name-space
-            setattr(self, cb.name, cb)
-            # link each callback to this experiment
-            cb.set_exp(self)
-        self.stop, self.cbs = False, cbs
-        # setup device
-        if device:
-            if type(device)==torch.device: 
-                pass
-            elif type(device)==str:
-                self.device=torch.device(device)
-        else:
-            # defaults to cuda:0 if cuda is available
-            if torch.cuda.is_available(): self.device = torch.device('cuda:0') 
-            else: self.device = torch.device('cpu')
-        # move model & cost function to device
-        self.model.to(self.device)
-        self.loss_func.to(self.device)
-        # meta information
-        self.name = name
-        self.desc = desc
-        self('before_train')
-        
-        
-    def __call__(self, cb_name):
-        # default to false
-        res = False
-        # sort the order of callbacks to execute 
-        for cb in sorted(self.cbs, key=lambda x: x._order): 
-            res = cb(cb_name) or res
-        return res
-
-    
-    def __repr__(self):
-        if hasattr(self,'_id'): return f'exp_{self._id}\n{self.name}; {self.desc}'
-        else: return f'exp\n{self.name}; {self.desc}'
-    
-    
-    # pass-along property methods that makes it easier to access learner properties from runner object
-    @property
-    def model(self):     return self.learner.model
-    @property
-    def loss_func(self): return self.learner.loss_func
-    @property
-    def data(self):      return self.learner.data    
-    @property
-    def metrics(self):   return self.learner.metrics
+    def __init__(self, learner, cbs=None, cb_funcs=None, device=None, name=None, desc=None,
+                 display_every_n_batch=1, eval_every_n_epoch=1, save_every_n_epoch=1,
+                 save_dir='runs'):        
+        # default callbacks for supervise experiments
+        default_cbs = [SetupCallback(display_every_n_batch, eval_every_n_epoch, save_every_n_epoch, save_dir), 
+                       RecorderCallback()]
+        # init super
+        Exp.__init__(self, learner, default_cbs + listify(cbs), cb_funcs, device, name, desc, 
+                     display_every_n_batch, eval_every_n_epoch, save_every_n_epoch, save_dir)
 
     
     # single-batch rountine, called in the all_batches method
     def one_batch(self, xb, yb):
         try:
+            self.opt.zero_grad()
             self.pred = self.model(self.xb)
             self('after_pred')
             # check whether to use a custom loss computation pattern
@@ -73,7 +28,6 @@ class Exp():
                 self.loss = self.loss_func(self.pred, self.yb) # default loss compute pattern
             self('after_loss')
             if not self.in_train: return # stop here if in eval mode as you don't need to backprop & update
-            self.opt.zero_grad()
             self.loss.backward() # back propagation
             self('after_backward')
             self.opt.step() # update params
@@ -89,15 +43,17 @@ class Exp():
             for batch in dl:
                 self.batch = batch
                 self('before_batch')
-                self.one_batch(self.xb, self.yb)
+                # self.stop flag can be used for early stopping of training
+                if not self.stop: self.one_batch(self.xb, self.yb)
+                else: break
                 self('after_batch')
-                self.show_progress()                                
+                self.show_progress()                      
         # call after_cancel_epoch callback if CancelEpochException occurs
         except CancelEpochException:
             self('after_cancel_epoch')
      
         
-    def run(self, epochs, optimizer):
+    def run(self, epochs, optimizer, _eval=True):
         # initialization
         self.epochs, self.opt, self.loss = epochs, optimizer, torch.tensor(0.)
         try:
@@ -106,10 +62,12 @@ class Exp():
             for epoch in range(epochs):
                 # training routine
                 self('before_epoch')
-                self.one_epoch(self.data.train_dl)
+                if not self.stop: self.one_epoch(self.data.train_dl)
+                else: break
                 self('after_epoch')
-                self.evaluate(self.data.train_dl)
-                self.evaluate(self.data.valid_dl)
+                if _eval:
+                    self.evaluate(self.data.train_dl)
+                    self.evaluate(self.data.valid_dl)
         # call after_cancel_epoch callback if CancelTrainException occurs
         except CancelTrainException: 
             self('after_cancel_train')
@@ -119,6 +77,10 @@ class Exp():
             self.show_progress(True)
 
             
+    def resume(self, epochs):
+        self.run(epochs, self.opt)
+        
+    
     def show_progress(self, show=False):
         # display progress after every n batches
         if show or (self.n_iter % self.display_every_n_batch == 0):
@@ -143,12 +105,15 @@ class Exp():
                 else: self('after_eval')
 
 
-    def save(self):
+    def save(self, opt=None):
         state = {'id': self._id,
                  'trained_epochs': self.n_epochs,
                  'trained_iterations': self.n_iter,
-                 'model': self.model,
-                 'optimizer': self.opt}
+                 'model': self.model}
+        if hasattr(self,'opt'):
+            state['optimizer'] = self.opt
+        if opt:
+            state['optimizer'] = opt
         filename = f'{self.save_dir}/{self.n_epochs}epochs.pth.tar'
         torch.save(state, filename)
 
@@ -158,6 +123,9 @@ class Exp():
         self._id = chkpt['id']
         self.n_epochs = chkpt['trained_epochs']
         self.n_iter = chkpt['trained_iterations']
-        self.model = chkpt['model']
-        self.opt = chkpt['optimizer']
-        print(f"checkpoint loaded; resume training from epoch {self.epoch}")
+        self.learner.model = chkpt['model']
+        if 'optimizer' in chkpt:
+            self.opt = chkpt['optimizer']
+        print(f"checkpoint loaded; resume training from epoch {self.n_epochs}")
+
+

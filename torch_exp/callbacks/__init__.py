@@ -3,3 +3,4 @@ from torch_exp.callbacks.setup_callback import SetupCallback
 from torch_exp.callbacks.recorder_callback import RecorderCallback
 from torch_exp.callbacks.cocodatabatch_callback import CocoDataBatchCallback
 from torch_exp.callbacks.gradientclip_callback import GradientClipCallback
+from torch_exp.callbacks.lrfind_callback import LrFindCallback

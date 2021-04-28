@@ -8,13 +8,18 @@ class RecorderCallback(Callback):
     Instantiates a series of Tracker objects to track key progress and metrics
     of the experiment
     """ 
+    def init_or_reset(self, name):
+        attr_name = camel2snake(name)
+        if hasattr(self.exp, attr_name): getattr(self.exp, attr_name).reset()
+        else: setattr(self.exp, attr_name, Recorder(name))
+
     def before_train(self):
-        self.exp.epoch_time = Recorder('EpochTime')
-        self.exp.batch_time = Recorder('BatchTime')
-        self.exp.train_eval_time  = Recorder('TrainEvalTime')
-        self.exp.eval_time  = Recorder('EvalTime')
-        self.exp.train_loss = Recorder('TrainLoss')
-        self.exp.eval_loss  = Recorder('EvalLoss')
+        self.init_or_reset('EpochTime')
+        self.init_or_reset('BatchTime')
+        self.init_or_reset('TrainEvalTime')
+        self.init_or_reset('EvalTime')
+        self.init_or_reset('TrainLoss')
+        self.init_or_reset('EvalLoss')
         self.exp.train_metrics, self.exp.eval_metrics = [], []
         for i, m in enumerate(listify(self.exp.metrics)):
             self.exp.train_metrics.append(

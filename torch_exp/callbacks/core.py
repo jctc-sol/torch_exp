@@ -12,6 +12,9 @@ class Callback():
 
     def set_exp(self, exp): 
         self.exp=exp
+        
+    def rmv_exp(self):
+        if hasattr(self, 'exp'): delattr(self, 'exp')
 
     def __getattr__(self, k): 
         return getattr(self.exp, k)  # reaches into experiment to get attribute k

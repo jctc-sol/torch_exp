@@ -6,7 +6,7 @@ class SetupCallback(Callback):
     Performs setup procedures to setup an experiment (i.e. create local directory to store
     artifacts etc.) as well as updating training progress between batches and epochs.
     """
-    def __init__(self, display_every_n_batch=1, eval_every_n_epoch=1, save_every_n_epoch=1,
+    def __init__(self, display_every_n_batch, eval_every_n_epoch, save_every_n_epoch,
                  save_dir='runs'):
         Callback.__init__(self)
         self.display_every_n_batch = display_every_n_batch
@@ -33,6 +33,9 @@ class SetupCallback(Callback):
         
         # set to training mode
         self.exp.in_train = True
+        
+        # reset stop to False
+        self.exp.stop = False
         
         # gather params to learn
         self.exp.weights, self.exp.biases = list(), list()

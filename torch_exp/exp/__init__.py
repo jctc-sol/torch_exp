@@ -1,1 +1,1 @@
-from torch_exp.exp.experiment import Exp
+from torch_exp.exp.supervised import SupervisedExp
