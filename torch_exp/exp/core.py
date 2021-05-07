@@ -76,7 +76,7 @@ class Exp():
                 if cb.name != _cb.name: cbs.append(_cb)
             self.cbs = cbs
             # remove callback name from current Exp name-space
-            delattr(self, cb,name)
+            delattr(self, cb.name)
             # unlink callback from this experiment
             cb.rmv_exp()
     

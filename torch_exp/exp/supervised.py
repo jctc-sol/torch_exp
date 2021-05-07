@@ -114,7 +114,7 @@ class SupervisedExp(Exp):
             state['optimizer'] = self.opt
         if opt:
             state['optimizer'] = opt
-        filename = f'{self.save_dir}/{self.n_epochs}epochs.pth.tar'
+        filename = f'{self.save_dir}/{int(self.n_epochs)}epochs.pth.tar'
         torch.save(state, filename)
 
 

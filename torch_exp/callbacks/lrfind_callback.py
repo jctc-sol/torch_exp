@@ -1,4 +1,6 @@
 import math
+import numpy as np
+import matplotlib.pyplot as plt
 from torch_exp.utils.core import listify
 from torch_exp.utils.recorder import Recorder
 from torch_exp.callbacks.core import Callback
@@ -15,6 +17,7 @@ class LrFindCallback(Callback):
         # recorders for lrs & losses
         self.lr_record   = Recorder('LrfLRs')
         self.loss_record = Recorder('LrfLoss', beta) # specify beta to compute exp-avg
+        self.smooth_loss_record = Recorder('LrfSmoothLoss')
 
 
     def find_differential_lr(self):
@@ -47,29 +50,47 @@ class LrFindCallback(Callback):
         
         
     def after_loss(self):
-        # record loss
-        # note: this computes the exp-avg internally & can be access via
-        # self.loss_record.exp_avg
-        loss = self.exp.loss.item()
-        self.loss_record(loss)
         # record log(lr)
         self.lr_record(math.log10(self.lr))
+        # record loss
+        loss = self.exp.loss.item()
+        self.loss_record(loss)  # note: this computes the exp-avg internally
         # compute the smoothed loss
         self.batch_num += 1
         smoothed_loss = self.loss_record.exp_avg / (1 - self.beta**self.batch_num)
+        # record smoothed loss
+        self.smooth_loss_record(smoothed_loss)
         # stop if loss is exploding
         if self.batch_num > 1 and smoothed_loss > 4 * self.best_loss:
             # set stop flag to True to break from one_batch & one_epoch routine
             self.exp.stop = True
+        # stop if loss is nan or inf
+        if smoothed_loss == np.nan or smoothed_loss == float("inf"):
+            self.exp.stop = True
         # check if current loss is better
         if smoothed_loss < self.best_loss or self.batch_num==1:
             self.best_loss = smoothed_loss
-        print(f'lr: {self.lr}  loss: {smoothed_loss}  best loss: {self.best_loss}')
+            
+        if self.batch_num > 100:
+            self.exp.stop = True
 
             
     def after_batch(self):
         # update the lr for the next batch
         self.lr *= self.multiplier
         self.set_lr(self.lr)
-        
-        
+    
+    
+    def after_train(self):
+        self.exp.n_epochs = 0
+        self.exp.n_iter = 0
+        # plot out the log10(lr) vs smoothed loss
+        lr = np.array(self.lr_record.value)
+        losses = np.array(self.smooth_loss_record.value)
+        # plot lr vs smooth losses
+        plt.figure()
+        plt.plot(lr[10:-2], losses[10:-2])
+        plt.axhline(y=self.best_loss, color='green', linestyle='--')
+        plt.xlabel('log_10(LR)')
+        plt.ylabel('loss')
+        plt.show()

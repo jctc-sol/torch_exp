@@ -1,7 +1,6 @@
 from torch_exp.callbacks import LrFindCallback
 
 
-# +
 class LrFinder():
     """
     learning rate finder routine based on FastAI's lr_find & Sylvain Gugger's 
@@ -13,8 +12,8 @@ class LrFinder():
         # init values
         n_batches = len(exp.data.train_dl)
         # create lr find callback & add to experiment
-        cb = LrFindCallback(opt, n_batches, lr_start, lr_end, beta)
-        exp.add_callback(cb)
+        self.cb = LrFindCallback(opt, n_batches, lr_start, lr_end, beta)
+        exp.add_callback(self.cb)
         self.exp = exp
         self.opt = opt
         
@@ -22,13 +21,9 @@ class LrFinder():
     def run(self):
         # save current experiment to preserve all param/opt states
         self.exp.save(opt=self.opt)
-        # run one epoch through training dataset
+        # run one epoch routine through training dataset
         self.exp.run(epochs=1, optimizer=self.opt, _eval=False)
-
-#         # show result
-#         self.plot_lr()
-        
-    
-#     def plot_lr(self):
-        
-        
+        # load back exp state before running lrf routine
+        self.exp.load(f'{self.exp.save_dir}/{int(self.exp.n_epochs)}epochs.pth.tar')
+        # remove LrFindCallback from exp
+        self.exp.rmv_callback(self.cb)

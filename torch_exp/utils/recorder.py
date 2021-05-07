@@ -21,7 +21,8 @@ class Recorder(object):
         
     def update(self, val, wgt=1):
         # check for invalid input value
-        if val == float("inf") or val == -1*float("inf"): return
+        if val == float("inf"): val = 1e12
+        elif val == -1*float("inf"): val = -1e12
         else:
             # compute running stats
             self.val = val
