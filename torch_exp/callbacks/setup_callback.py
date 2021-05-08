@@ -62,6 +62,16 @@ class SetupCallback(Callback):
     
     def after_epoch(self):
         self.exp.n_epochs+=1
+        # save every n epochs
+        if self.exp.n_epochs % self.save_every_n_epoch == 0:
+            if hasattr(self.exp, 'opt'):
+                self.exp.save(self.exp.opt)
+            else:
+                self.exp.save()
+        # eval every n epochs
+        if self.exp.n_epochs % self.eval_every_n_epoch == 0:
+            self.exp.evaluate(self.exp.data.train_dl)
+            self.exp.evaluate(self.exp.data.valid_dl)
     
     
     def before_eval(self):

@@ -47,7 +47,7 @@ class SupervisedExp(Exp):
                 if not self.stop: self.one_batch(self.xb, self.yb)
                 else: break
                 self('after_batch')
-                self.show_progress()                      
+                self.show_progress()
         # call after_cancel_epoch callback if CancelEpochException occurs
         except CancelEpochException:
             self('after_cancel_epoch')
@@ -65,9 +65,6 @@ class SupervisedExp(Exp):
                 if not self.stop: self.one_epoch(self.data.train_dl)
                 else: break
                 self('after_epoch')
-                if _eval:
-                    self.evaluate(self.data.train_dl)
-                    self.evaluate(self.data.valid_dl)
         # call after_cancel_epoch callback if CancelTrainException occurs
         except CancelTrainException: 
             self('after_cancel_train')
@@ -127,5 +124,3 @@ class SupervisedExp(Exp):
         if 'optimizer' in chkpt:
             self.opt = chkpt['optimizer']
         print(f"checkpoint loaded; resume training from epoch {self.n_epochs}")
-
-

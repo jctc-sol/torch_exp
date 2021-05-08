@@ -82,8 +82,10 @@ class LrFindCallback(Callback):
     
     
     def after_train(self):
+        # reset exp state
         self.exp.n_epochs = 0
         self.exp.n_iter = 0
+        self.exp.stop = False
         # plot out the log10(lr) vs smoothed loss
         lr = np.array(self.lr_record.value)
         losses = np.array(self.smooth_loss_record.value)
