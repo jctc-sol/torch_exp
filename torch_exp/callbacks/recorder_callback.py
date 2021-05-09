@@ -14,12 +14,8 @@ class RecorderCallback(Callback):
         else: setattr(self.exp, attr_name, Recorder(name))
 
     def before_train(self):
-        self.init_or_reset('EpochTime')
-        self.init_or_reset('BatchTime')
-        self.init_or_reset('TrainEvalTime')
-        self.init_or_reset('EvalTime')
-        self.init_or_reset('TrainLoss')
-        self.init_or_reset('EvalLoss')
+        for n in ['EpochTime', 'BatchTime', 'TrainEvalTime', 'EvalTime', 'TrainLoss', 'EvalLoss']:
+            self.init_or_reset(n)
         self.exp.train_metrics, self.exp.eval_metrics = [], []
         for i, m in enumerate(listify(self.exp.metrics)):
             self.exp.train_metrics.append(

@@ -1,5 +1,5 @@
 import re, uuid
-from torch_exp.utils import *
+from torch_exp.utils import camel2snake
 
 
 class Callback():
