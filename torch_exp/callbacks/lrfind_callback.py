@@ -70,9 +70,6 @@ class LrFindCallback(Callback):
         # check if current loss is better
         if smoothed_loss < self.best_loss or self.batch_num==1:
             self.best_loss = smoothed_loss
-            
-        if self.batch_num > 100:
-            self.exp.stop = True
 
             
     def after_batch(self):

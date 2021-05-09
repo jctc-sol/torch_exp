@@ -4,3 +4,4 @@ from torch_exp.callbacks.recorder_callback import RecorderCallback
 from torch_exp.callbacks.cocodatabatch_callback import CocoDataBatchCallback
 from torch_exp.callbacks.gradientclip_callback import GradientClipCallback
 from torch_exp.callbacks.lrfind_callback import LrFindCallback
+from torch_exp.callbacks.onecyclescheduler_callback import OneCycleSchedulerCallback
