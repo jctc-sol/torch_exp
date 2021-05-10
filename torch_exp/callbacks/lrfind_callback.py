@@ -1,7 +1,6 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from torch_exp.utils.core import listify
 from torch_exp.utils.recorder import Recorder
 from torch_exp.callbacks.core import Callback
 
@@ -19,24 +18,6 @@ class LrFindCallback(Callback):
         self.loss_record = Recorder('LrfLoss', beta) # specify beta to compute exp-avg
         self.smooth_loss_record = Recorder('LrfSmoothLoss')
 
-
-    def find_differential_lr(self):
-        # find the relative ratio of LR for all param groups wrt to the first 
-        # param group; this is for differential learning scenarios where some 
-        # params groups are updated at higher LR than others
-        lr_pg0 = listify(self.opt.param_groups)[0]['lr']
-        self.lr_ratios = []
-        for pg in listify(self.opt.param_groups):
-            self.lr_ratios.append(pg['lr']/lr_pg0)
-        
-
-    def set_lr(self, lr):
-        # set current lr value; update all optimizer param group
-        # learning rates to new value * their respective lr ratio
-        self.lr = lr
-        for i, pg in enumerate(listify(self.opt.param_groups)):
-            pg['lr'] = lr * self.lr_ratios[i]
-                    
     
     def before_epoch(self):        
         self.batch_num = 0

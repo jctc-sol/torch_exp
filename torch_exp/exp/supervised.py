@@ -31,6 +31,7 @@ class SupervisedExp(Exp):
             self.loss.backward() # back propagation
             self('after_backward')
             self.opt.step() # update params
+            print('opt step')
             self('after_step')
         # call after_cancel_batch callback if CancelBatchException occurs
         except CancelBatchException: 

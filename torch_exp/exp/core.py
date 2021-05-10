@@ -54,7 +54,7 @@ class Exp():
     def add_callback(self, cb):
         # if cb is a list of callbacks; recursively add each one
         if isinstance(cb, list):
-            for _cb in cb: self.add_callback(cb)
+            for _cb in cb: self.add_callback(_cb)
         else:
             # avoid adding duplicate callbacks by checking for unique names
             for _cb in self.cbs:
