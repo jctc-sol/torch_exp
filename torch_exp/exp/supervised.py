@@ -54,7 +54,7 @@ class SupervisedExp(Exp):
             self('after_cancel_epoch')
      
         
-    def run(self, epochs, optimizer, _eval=True):
+    def run(self, epochs, optimizer):
         # initialization
         self.epochs, self.opt, self.loss = epochs, optimizer, torch.tensor(0.)
         try:

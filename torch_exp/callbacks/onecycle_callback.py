@@ -35,4 +35,7 @@ class OneCycleCallback(Callback):
         self.mom_record(mom)
         # set updated LR while maintaining any differential LR between param groups
         self.set_lr(lr)
-        print('lr_scheduler step')
+
+        
+    def after_train(self):
+        self.before_train() # reset scheduler after training
