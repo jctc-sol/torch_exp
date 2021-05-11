@@ -71,11 +71,26 @@ class SetupCallback(Callback):
         # eval every n epochs
         if self.exp.n_epochs % self.eval_every_n_epoch == 0:
             if self.exp.data.train_dl:
-                self.exp.evaluate(self.exp.data.train_dl)
+                self.exp.evaluate(self.exp.data.train_dl, train=True)
             if self.exp.data.valid_dl:
                 self.exp.evaluate(self.exp.data.valid_dl)
     
     
+    def before_train_eval(self):
+        ...
+        self.before_eval()
+    
+    
+    def after_train_eval(self):
+        ...
+        self.after_eval()
+        
+    
     def before_eval(self):
         self.model.eval()
         self.exp.in_train=False
+        
+        
+    def after_eval(self):
+        self.model.train()
+        self.exp.in_train=True
