@@ -22,7 +22,7 @@ class LrFinder():
         # save current experiment to preserve all param/opt states
         self.exp.save(opt=self.opt)
         # run one epoch routine through training dataset
-        self.exp.run(epochs=1, optimizer=self.opt, _eval=False)
+        self.exp.run(epochs=1, optimizer=self.opt)
         # load back exp state before running lrf routine
         self.exp.load(f'{self.exp.save_dir}/{int(self.exp.n_epochs)}epochs.pth.tar')
         # remove LrFindCallback from exp

@@ -82,11 +82,11 @@ class SupervisedExp(Exp):
         # display progress after every n batches
         if show or (self.n_iter % self.display_every_n_batch == 0):
             if self.in_train:
-                print(f"[{self.n_epochs}/{self.epochs}] epochs | \
+                print(f"[{int(self.n_epochs)}/{self.epochs}] epochs | \
                 [{self.n_iter}/{self.iters}] iterations | \
                 avg. train loss: {self.train_loss.avg}")
             else:
-                print(f"[{self.n_epochs}/{self.epochs}] epochs | \
+                print(f"[{int(self.n_epochs)}/{self.epochs}] epochs | \
                 [{self.n_iter}/{self.iters}] iterations | \
                 avg. eval loss: {self.eval_loss.avg}")                
 
