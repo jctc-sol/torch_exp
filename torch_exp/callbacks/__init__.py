@@ -5,3 +5,4 @@ from torch_exp.callbacks.cocodatabatch_callback import CocoDataBatchCallback
 from torch_exp.callbacks.gradientclip_callback import GradientClipCallback
 from torch_exp.callbacks.lrfind_callback import LrFindCallback
 from torch_exp.callbacks.onecycle_callback import OneCycleCallback
+from torch_exp.callbacks.tensorboard_callback import TensorBoardCallback
