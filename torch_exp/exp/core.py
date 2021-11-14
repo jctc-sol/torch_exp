@@ -20,7 +20,7 @@ class Exp():
         # setup device
         if device:
             if type(device)==torch.device: 
-                pass
+                self.device=device
             elif type(device)==str:
                 self.device=torch.device(device)
         else:

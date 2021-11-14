@@ -102,7 +102,7 @@ class SupervisedExp(Exp):
                 else: self('after_eval')
 
 
-    def save(self, opt=None):
+    def save(self, opt=None, save_path=None):
         state = {'id': self._id,
                  'trained_epochs': self.n_epochs,
                  'trained_iterations': self.n_iter,
@@ -111,8 +111,9 @@ class SupervisedExp(Exp):
             state['optimizer'] = self.opt
         if opt:
             state['optimizer'] = opt
-        filename = f'{self.save_dir}/{int(self.n_epochs)}epochs.pth.tar'
-        torch.save(state, filename)
+        if save_path is None:
+            save_path = f"{self.save_dir}/{int(self.n_epochs)}epochs.pth.tar"
+        torch.save(state, save_path)
 
 
     def load(self, path):
