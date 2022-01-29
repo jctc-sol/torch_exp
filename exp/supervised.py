@@ -19,12 +19,9 @@ class SupervisedExp(Exp):
     
     # single-batch rountine, called in the all_batches method
     def one_batch(self, xb, yb):
-        try:
+        try:                        
             self.opt.zero_grad()
-            self.pred = self.model(self.xb)
-            
-            import pdb; pdb.set_trace()
-            
+            self.pred = self.model(self.xb)                        
             self('after_pred')
             # check whether to use a custom loss computation pattern
             if not (hasattr(self,'custom_loss') and self.custom_loss):
@@ -87,10 +84,12 @@ class SupervisedExp(Exp):
             if self.in_train:
                 print(f"[{int(self.n_epochs)}/{self.epochs}] epochs | \
                 [{self.n_iter}/{self.iters}] iterations | \
+                current train loss: {self.train_loss.val} | \
                 avg. train loss: {self.train_loss.avg}")
             else:
                 print(f"[{int(self.n_epochs)}/{self.epochs}] epochs | \
                 [{self.n_iter}/{self.iters}] iterations | \
+                current eval loss: {self.eval_loss.val} | \
                 avg. eval loss: {self.eval_loss.avg}")                
 
             
@@ -119,8 +118,8 @@ class SupervisedExp(Exp):
         torch.save(state, save_path)
 
 
-    def load(self, path):
-        chkpt = torch.load(path)
+    def load(self, path, device):
+        chkpt = torch.load(path, map_location=torch.device(device))
         self._id = chkpt['id']
         self.n_epochs = chkpt['trained_epochs']
         self.n_iter = chkpt['trained_iterations']
